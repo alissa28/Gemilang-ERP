@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Page Toko Gemilang 888</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/welcome.css') }}">    
+
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
+</head>
+<body class="hold-transition layout-top-nav">
+    <div class="wrapper">
+        <!-- Header -->
+        <nav class="main-header navbar navbar-expand-md navbar-light bg-warning">
+            <div class="container">
+                <a href="#" class="navbar-brand d-flex align-items-center">
+                    <img src="{{ url_for('static', filename='media/img/logo_transparant.png') }}" alt="Logo Gemilang 888" class="logo">
+                    <span class="header-title">TOKO GEMILANG 888</span>
+                </a>
+                <div class="ml-auto">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-dark">
+                        <i class="fas fa-sign-in-alt"></i> LOGIN
+                    </a>
+                </div>
+            </div>
+        </nav>
+         <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="content">
+          
+            <div class="welcome-card">
+                    <div class="text-content">
+                        <h1 class="welcome-title">Selamat Datang di Sistem ERP Toko Gemilang 888</h1>
+                        <p class="welcome-subtext">Website ini dilengkapi dengan fasilitas pembuatan faktur dan surat jalan secara online</p>
+                    </div>
+                    <img src="{{ url_for('static', filename='media/img/logo_transparant.png') }}" alt="Logo Gemilang 888" class="logo1">
+            </div>
+        
+        </div>
+    </div>
+</div>
+
+
+</html>

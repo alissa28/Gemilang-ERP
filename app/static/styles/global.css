@@ -1,0 +1,72 @@
+.main-header{
+    background-color: #fffca4 !important;
+    color: black;
+}
+
+
+
+.header-title{
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+.header-line{
+    width: 100%; /* Panjang garis menyesuaikan lebar kontainer */
+    height: 2px; /* Ketebalan garis */
+    background-color: #ccc; /* Warna garis */
+    margin-top: 10px; /* Jarak antara teks dan garis */
+    border-bottom: 2px;
+    
+}
+
+
+.icon-dashboardsptg{
+    position: relative;
+    top: 2px;
+    left: 10px;
+}
+
+.icon-historybarangsptg{
+    position: relative;
+    top: 2px;
+    left: 10px;
+}
+.icon-inputbarangsptg{
+    position: relative;
+    top: 2px;
+    left: 10px;
+}
+
+.user-panel .image img{
+    margin-top: 10px;/*Menurunkan sedikit gambar profil*/
+}
+
+
+/*Untuk Kotak SPTG*/
+.brand-link{
+    background-color: #fffd89;
+    color: black;
+    text-align: center;
+    padding: 13px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-image{
+    max-width: 50px;
+    margin-right: 10px;
+    vertical-align: middle; /*Memastikan gambar sejajar vertikal dengan teks*/
+}
+
+.content-header{
+    position: relative;
+    padding-top: 40px;
+}
+
+
+
+
+
+

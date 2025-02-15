@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Barang SETG</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/inputbarang.css') }}">    
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+   
+
+
+</head>
+<body class="hold-transition sidebar-mini">
+
+<div class="wrapper">
+    <!-- Navbar -->
+    {% include 'shared/navbar.html' %}
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    {% include 'shared/sidebar.html' %}
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Content Header -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class ="header-title">
+                    <i class="nav-icon fas fa-plus icon-inputbarangsptg"></i>
+                    <h1 class="m-0 text-dark">Input Barang SETG</h1>
+                </div>
+                <div class="header-line"></div>
+            </div>
+           
+        </div>
+        <!-- /.content-header -->
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class = "card">
+                    <div class ="card-header">
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#modalTambahBarang">Tambah Barang</button>
+                    </div>
+                    <div class = "card-body">
+                        <table class = "table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>ID Barang</th>
+                                    <th>Nama Barang</th>
+                                    <th>Harga Barang</th>
+                                    <th>Stok Barang</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="4" class="text-center">Tidak ada Data</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /.content -->
+    </div>
+    
+    <!--Modul Tambah Barang-->
+    <div class = "modal fade" id="modalTambahBarang" tabindex="-1" role="dialog" aria-labelledby="modalTambahBarangLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class ="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTambahBarangLabel">Tambah Barang</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            
+            <div class="modal-body">
+                <form id ="formTambahBarang">
+                    <div class="form-container">
+                        <div class = "form-group">
+                            <label for="idBarang">ID Barang</label>
+                            <input type="text" class="form-control" id="idBarang" placeholder="Masukkan ID Barang">
+                        </div>
+                        <div class = "form-group">
+                            <label for="namaBarang">Nama Barang</label>
+                            <input type="text" class="form-control" id="namaBarang" placeholder="Masukkan ID Barang">
+                        </div>
+                        <div class = "form-group">
+                            <label for="hargaBarang">Harga Barang</label>
+                            <input type="text" class="form-control" id="hargaBarang" placeholder="Masukkan ID Barang">
+                        </div>
+                        <div class = "form-group">
+                            <label for="stokBarang">Stok Barang</label>
+                            <input type="text" class="form-control" id="stokBarang" placeholder="Masukkan ID Barang">
+                            <br>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modul">Submit</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modul">Cancel</button> 
+                            </br>
+                        </div>
+
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- /.content-wrapper -->
+</div>
+<!-- /.wrapper -->
+
+</body>
+</html>

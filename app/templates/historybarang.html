@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Barang SETG</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">    
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+    <style>
+        .sales-row {
+            background-color: #ffdddd !important;
+        }
+        .purchase-row {
+            background-color: #ddffdd !important;
+        }
+    </style>
+</head>
+<body class="hold-transition sidebar-mini">
+    <div class="wrapper">
+        <!-- Navbar -->
+        {% include 'shared/navbar.html' %}
+
+        <!-- Main Sidebar Container -->
+        {% include 'shared/sidebar.html' %}
+
+
+        <div class="content-wrapper">
+            <section class="content">
+                <div class="container-fluid">
+                    <div class="card">
+                        <div class="card-body">
+                            <table id="transactionTable" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>ID Barang</th>
+                                        <th>Nama Barang</th>
+                                        <th>Harga Barang</th>
+                                        <th>Stok Barang</th>
+                                        <th>Transaction Type</th>
+                                        <th>Quantity</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+    $(document).ready(function () {
+        // Extend DataTables with moment.js sorting
+        jQuery.fn.dataTable.ext.type.order['date-moment-asc'] = function (a, b) {
+            return moment(a, 'DD/MM/YYYY').diff(moment(b, 'DD/MM/YYYY'));
+        };
+
+        jQuery.fn.dataTable.ext.type.order['date-moment-desc'] = function (a, b) {
+            return moment(b, 'DD/MM/YYYY').diff(moment(a, 'DD/MM/YYYY'));
+        };
+
+        const table = $('#transactionTable').DataTable({
+            ajax: {
+                url: "/inventory/transactions",
+                dataSrc: ''
+            },
+            columns: [
+                { data: 'item_id' },
+                { data: 'item_name' },
+                {
+                    data: 'unit_price',
+                    render: function (data, type, row) {
+                        return row.type === 'sale' ?  data : '-' + data;
+                    }
+                },
+                { data: 'current_stock' },
+                {
+                    data: 'type',
+                    render: function (data) {
+                        return data.charAt(0).toUpperCase() + data.slice(1);
+                    }
+                },
+                {
+                    data: 'quantity',
+                    render: function (data, type, row) {
+                        return row.type === 'sale' ? '-' + data : data;
+                    }
+                },
+                {
+                    data: 'date',
+                    render: function (data) {
+                        return moment(data).format('DD/MM/YYYY');
+                    }
+                }
+            ],
+            order: [[6, 'desc']],
+            columnDefs: [
+                { targets: 6, type: 'date-moment' }
+            ],
+            createdRow: function (row, data) {
+                if (data.type === 'purchase') {
+                    $(row).addClass('purchase-row');
+                } else if (data.type === 'sale') {
+                    $(row).addClass('sales-row');
+                }
+            }
+        });
+    });
+    </script>
+
+</body>
+</html>

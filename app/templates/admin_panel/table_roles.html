@@ -1,0 +1,111 @@
+<table class="datatable table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Privileges</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for role in roles %}
+        <tr>
+            <td>{{ role.id }}</td>
+            <td>{{ role.name }}</td>
+            <td>{{ role.description }}</td>
+            <td>
+                <ul>
+                    {% for privilege in role.privileges %}
+                    <li>{{ privilege.name }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <button class="btn btn-primary btn-sm" onclick="editRole({{ role.id }})">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteRole({{ role.id }})">Delete</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Modal for editing role -->
+<div class="modal fade" id="editRoleModal" tabindex="-1" role="dialog" aria-labelledby="editRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRoleModalLabel">Edit Role</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editRoleForm">
+                    <input type="hidden" id="editRoleId">
+                    <div class="form-group">
+                        <label for="editRoleName">Name</label>
+                        <input type="text" class="form-control" id="editRoleName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editRoleDescription">Description</label>
+                        <input type="text" class="form-control" id="editRoleDescription">
+                    </div>
+                    <div class="form-group">
+                        <label for="editRolePrivileges">Privileges</label>
+                        <select multiple class="form-control" id="editRolePrivileges">
+                            {% for privilege in all_privileges %}
+                            <option value="{{ privilege.id }}">{{ privilege.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editRole(roleId) {
+    $.get('/acc_control/roles/' + roleId, function(role) {
+        $('#editRoleId').val(role.id);
+        $('#editRoleName').val(role.name);
+        $('#editRoleDescription').val(role.description);
+        $('#editRolePrivileges').val(role.privileges.map(p => p.id));
+        $('#editRoleModal').modal('show');
+    });
+}
+
+$('#editRoleForm').on('submit', function(event) {
+    event.preventDefault();
+    var roleId = $('#editRoleId').val();
+    var data = {
+        name: $('#editRoleName').val(),
+        description: $('#editRoleDescription').val(),
+        privilege_ids: $('#editRolePrivileges').val()
+    };
+    $.ajax({
+        url: '/acc_control/roles/' + roleId,
+        type: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(result) {
+            $('#editRoleModal').modal('hide');
+            location.reload();
+        }
+    });
+});
+
+function deleteRole(roleId) {
+    if (confirm('Are you sure you want to delete this role?')) {
+        $.ajax({
+            url: '/acc_control/roles/' + roleId,
+            type: 'DELETE',
+            success: function() {
+                location.reload();
+            }
+        });
+    }
+}
+</script>

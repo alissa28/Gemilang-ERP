@@ -1,0 +1,18 @@
+<table class="datatable table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for privilege in privileges %}
+        <tr>
+            <td>{{ privilege.id }}</td>
+            <td>{{ privilege.name }}</td>
+            <td>{{ privilege.description }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

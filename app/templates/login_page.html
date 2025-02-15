@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Toko Gemilang 888</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/login_page.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
+    <style>
+        .login-logo img {
+            width: 100px; /* Adjust the size as needed */
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="hold-transition login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            <img src="{{ url_for('static', filename='media/img/logo_transparant.png') }}" alt="Logo Gemilang 888" class="brand-image">            
+            <span class="brand-text font-weight-light"><b>SETG</b></span>
+            <h1 class="h4 mt-2 fw-bold">Toko Plastik Gemilang 888</h1>
+        </div>
+
+        <div class="card">
+            <div class="card-body login-card-body">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <ul class=flashes>
+
+                        <li>{{ messages[-1] }}</li>
+
+                        </ul>
+                    {% endif %}
+                    {% endwith %}
+                    {% block body %}{% endblock %}
+                <p class="login-box-msg"> SIGN IN </p>
+
+                <form action="{{ url_for('auth.authenticate') }}" method="post">
+                    <div class="input-group mb-3">
+                        <input type="text" name="username" class="form-control" placeholder="User ID" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-user"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="password" name="password" class="form-control" placeholder="password" id="password-input" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span id="toggle-password" class="fas fa-eye-slash"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('#toggle-password').on('click', function(){
+                const passwordInput = $('#password-input');
+                const passwordIcon = $(this);
+
+                if(passwordInput.attr('type') === 'password'){
+                    passwordInput.attr('type', 'text');
+                    passwordIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+                } else {
+                    passwordInput.attr('type', 'password');
+                    passwordIcon.removeClass('fa-eye').addClass('fa-eye-slash');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

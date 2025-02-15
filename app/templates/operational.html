@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Operational </title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/operational.css') }}">    
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+   
+
+
+</head>
+<body class="hold-transition sidebar-mini">
+
+<div class="wrapper">
+    <!-- Navbar -->
+    {% include 'shared/navbar.html' %}
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    {% include 'shared/sidebar.html' %}
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Content Header -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class ="header-title">
+                    <i class="nav-icon fas fa-cogs icon-inputbarangsptg"></i>
+                    <h1 class="m-0 text-dark">Operational</h1>
+                </div>
+                <div class="header-line"></div>
+            </div>
+           
+        </div>
+        <!-- /.content-header -->
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class = "card">
+                    <div class ="card-header">
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#modalTambahNota">Tambah Operational</button>
+                    </div>
+                    <div class = "card-body">
+                        <table class = "table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Tanggal</th>
+                                    <th>Nama Customer</th>
+                                    <th>Keterangan</th>
+                                    <th>Jenis Dokumen</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="6" class="text-center">Tidak ada Data</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /.content -->
+    </div>
+    
+    <!--Modul Nota-->
+    <div class = "modal fade" id="modalTambahNota" tabindex="-1" role="dialog" aria-labelledby="modalTambahNotaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class ="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTambahNotaLabel">Tambah Operational</h5>
+                    
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                    
+                </div>
+            <div class ="button-container text-center my-3">
+                <button class = "btn btn-info" id="btnNota">Nota Penjualan</button>
+                <button class = "btn btn-info" id="btnSuratJalan">Surat Jalan</button>
+            </div>
+            <div class="modal-body">
+                <!--Form Nota-->
+                <form id ="formTambahNota" class="form-container">
+                        <div class ="row">
+                            <div class="col-md-6">
+                                <div class = "form-group">
+                                    <label for="idNota">No Nota</label>
+                                    <input type="text" class="form-control" id="noNota" placeholder="">
+                                </div>
+                                <div class = "form-group">
+                                    <label for="tanggal">Tanggal</label>
+                                    <input type="date" class="form-control" id="tanggalNota" placeholder="Masukkan Tanggal">
+                                </div>
+                                <div class = "form-group">
+                                    <label for="penjual">Nama Penjual</label>
+                                    <input type="text" class="form-control" id="namaPenjual" placeholder="Masukkan Nama Penjual">
+                                </div>
+                            </div>    
+                        
+
+                            <div class="col-md-6">
+                                <div class = "form-group">
+                                    <label for="customer">Nama Customer</label>
+                                    <input type="text" class="form-control" id="namaCustomer" placeholder="Masukkan Nama Customer">
+                                </div>
+                                <div class = "form-group">
+                                    <label for="alamatcust">Alamat Customer</label>
+                                    <input type="text" class="form-control" id="alamatCustomer" placeholder="Masukkan Alamat Customer">
+                                </div>
+                                <div class = "form-group">
+                                    <label for="telpcust">No Telp Customer</label>
+                                    <input type="text" class="form-control" id="notelpCustomer" placeholder="Masukkan No Telp Customer">
+                                </div>
+                            </div>
+                        </div>
+                        <!--Detail Produk-->
+                        <h5>Detail Produk</h5>
+                        <div class="row mb-3">
+                            <div class = "col-md-3">
+                                <label for="namaBarang">Nama Barang</label>
+                                <input type="text" class="form-control" id="namaBarang" placeholder="Nama Barang">
+                            </div>
+                            <div class = "col-md-3">
+                                <label for="hargaSatuan">Harga Satuan</label>
+                                <input type="number" class="form-control" id="hargaSatuan" placeholder="Harga Satuan">
+                            </div>
+                            <div class = "col-md-3">
+                                <label for="hargaSatuan">Kuantitas</label>
+                                <input type="number" class="form-control" id="kuantitas" placeholder="Kuantitas">
+                            </div>
+                            <div class = "col-md-3">
+                                <label for="total">Total</label>
+                                <input type="number" class="form-control" id="totalharga" placeholder="Total">
+                            </div>
+                        </div>
+
+                        <div class ="text-center mb-3">
+                            <button type="button" class="btn btn-outliner-primary"> <i class = "fas fa-plus"></i></button>
+                        </div>
+
+                        <div class = "text-center">
+                            <button type = "submit" class="btn btn-success">SUBMIT</button>
+                            <button type = "reset" class="btn btn-danger">DELETE</button>
+                            <button type = "button" class="btn btn-warning">PRINT</button>
+                        </div>   
+                </form>
+
+                <!--Form Surat Jalan (hidden by default)-->
+                <form id ="formTambahSuratJalan" class ="form-container" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class = "form-group">
+                                <label for="idSuratJalan">No Surat</label>
+                                <input type="text" class="form-control" id="noSuratJalan" placeholder="">
+                            </div>
+                            <div class = "form-group">
+                                <label for="tanggal">Tanggal</label>
+                                <input type="date" class="form-control" id="tanggalSuratJalan" placeholder="Masukkan Tanggal">
+                            </div>
+                            <div class = "form-group">
+                                <label for="penjual">Nama Penjual</label>
+                                <input type="text" class="form-control" id="namaPenjual" placeholder="Masukkan Nama Penjual">
+                            </div>
+                        </div>    
+                    
+
+                        <div class="col-md-6">
+                            <div class = "form-group">
+                                <label for="customer">Nama Customer</label>
+                                <input type="text" class="form-control" id="namaCustomer" placeholder="Masukkan Nama Customer">
+                            </div>
+                            <div class = "form-group">
+                                <label for="alamatcust">Alamat Customer</label>
+                                <input type="text" class="form-control" id="alamatCustomer" placeholder="Masukkan Alamat Customer">
+                            </div>
+                            <div class = "form-group">
+                                <label for="telpcust">No Telp Customer</label>
+                                <input type="text" class="form-control" id="notelpCustomer" placeholder="Masukkan No Telp Customer">
+                            </div>
+                        </div>
+                    </div>
+                    <!--Detail Produk-->
+                    <h5>Detail Produk</h5>
+                    <div class="row mb-3">
+                        <div class = "col-md-3">
+                            <label for="namaBarang">Nama Barang</label>
+                            <input type="text" class="form-control" id="namaBarang" placeholder="Nama Barang">
+                        </div>
+                        
+                        <div class = "col-md-3">
+                            <label for="hargaSatuan">Kuantitas</label>
+                            <input type="number" class="form-control" id="kuantitas" placeholder="Kuantitas">
+                        </div>
+                        
+                    </div>
+
+                    <div class ="text-center mb-3">
+                        <button type="button" class="btn btn-outliner-primary"> <i class = "fas fa-plus"></i></button>
+                    </div>
+
+                    <div class = "text-center">
+                        <button type = "submit" class="btn btn-success">SUBMIT</button>
+                        <button type = "reset" class="btn btn-danger">DELETE</button>
+                        <button type = "button" class="btn btn-warning">PRINT</button>
+                    </div>   
+                </form>
+                
+
+            </div>
+
+
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+
+            $('#btnNota').on('click', function(){
+                $('#formTambahNota').show();
+                $('#formTambahSuratJalan').hide();
+            });
+
+            $('#btnSuratJalan').on('click', function(){
+                $('#formTambahSuratJalan').show();
+                $('#formTambahNota').hide();
+                
+            });
+            
+        });
+
+
+    </script>
+
+    <!-- /.content-wrapper -->
+</div>
+<!-- /.wrapper -->
+
+</body>
+</html>

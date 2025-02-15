@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
+</head>
+<body class="hold-transition sidebar-mini">
+
+<div class="wrapper">
+    {% include 'shared/navbar.html' %}
+    {% include 'shared/sidebar.html' %}
+
+    <div class="content-wrapper">
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="header-title">
+                    <h1 class="m-0 text-dark">Sales Report</h1>
+                </div>
+                <div class="header-line"></div>
+            </div>
+        </div>
+
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <form id="reportForm" class="form-inline">
+                            <label for="period" class="mr-2">Select Period:</label>
+                            <select id="period" name="period" class="form-control mr-2">
+                                <option value="day" {% if period == 'day' %}selected{% endif %}>Day</option>
+                                <option value="week" {% if period == 'week' %}selected{% endif %}>Week</option>
+                                <option value="month" {% if period == 'month' %}selected{% endif %}>Month</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary">Generate Report</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-box bg-light">
+                            <span class="info-box-icon bg-success"><i class="fas fa-dollar-sign"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Total Sales</span>
+                                <span class="info-box-number">{{ total_sales }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-box bg-light">
+                            <span class="info-box-icon bg-info"><i class="fas fa-box"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Total Items Sold</span>
+                                <span class="info-box-number">{{ total_items_sold }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-box bg-light">
+                            <span class="info-box-icon bg-info"><i class="fas fa-money-bill"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Total Profit</span>
+                                <span class="info-box-number">{{ total_profit }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Sales Details</h3>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Sale ID</th>
+                                            <th>Date</th>
+                                            <th>Customer</th>
+                                            <th>Total Amount</th>
+                                            <th>Profit</th>
+                                            <th>Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for sale in sales %}
+                                        <tr>
+                                            <td>{{ sale.id }}</td>
+                                            <td>{{ sale.sale_date }}</td>
+                                            <td>{{ sale.customer.name }}</td>
+                                            <td>{{ sale.total_amount }}</td>
+                                            <td>{{ sale.profit }}</td>
+                                            <td>
+                                                <table class="table table-sm table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Item</th>
+                                                            <th>Quantity</th>
+                                                            <th>Unit Price</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for detail in sale.details %}
+                                                        <tr>
+                                                            <td>{{ detail.item.name }}</td>
+                                                            <td>{{ detail.quantity }}</td>
+                                                            <td>{{ detail.unit_price }}</td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#reportForm').on('submit', function(event) {
+        event.preventDefault();
+        const period = $('#period').val();
+        window.location.href = `/sales/report?period=${period}`;
+    });
+});
+</script>
+
+</body>
+</html>

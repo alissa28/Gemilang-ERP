@@ -1,0 +1,12 @@
+.form-container {
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+}
+.modal-backdrop{
+    background-color: pink;
+}
+.modal{
+    pointer-events: auto;
+}

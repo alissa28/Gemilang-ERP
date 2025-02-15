@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard SPTG</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    $(document).ready(function() {
+        // Get today's date and date from 7 days ago
+        const today = new Date().toISOString().split('T')[0];
+        const pastWeekDate = new Date();
+        pastWeekDate.setDate(pastWeekDate.getDate() - 7);
+        const pastWeek = pastWeekDate.toISOString().split('T')[0];
+
+        // Fetch counts
+        $.getJSON(`/suppliers/count?start_date=${pastWeek}&end_date=${today}`, function(data) {
+            $('#supplier-count').text(data.count);
+        });
+        $.getJSON(`/sales/count?start_date=${pastWeek}&end_date=${today}`, function(data) {
+            $('#sale-count').text(data.count);
+        });
+        $.getJSON(`/purchases/count?start_date=${pastWeek}&end_date=${today}`, function(data) {
+            $('#purchase-count').text(data.count);
+        });
+        $.getJSON(`/inventory/count?start_date=${pastWeek}&end_date=${today}`, function(data) {
+            $('#inventory-count').text(data.count);
+        });
+
+        // Fetch and render charts
+        fetch(`/inventory/transactions?start_date=${pastWeek}&end_date=${today}`)
+            .then(response => response.json())
+            .then(data => {
+                renderInventoryChart(data);
+                renderSalesChart(data);
+            });
+
+        function renderInventoryChart(data) {
+            const ctx = document.getElementById('inventoryChart').getContext('2d');
+
+            // Group data by item_name
+            const groupedData = data.reduce((acc, item) => {
+                if (!acc[item.item_name]) {
+                    acc[item.item_name] = { sales: 0, purchases: 0 };
+                }
+                if (item.type === 'sale') {
+                    acc[item.item_name].sales += item.quantity;
+                } else if (item.type === 'purchase') {
+                    acc[item.item_name].purchases += item.quantity;
+                }
+                return acc;
+            }, {});
+
+            // Extract labels and datasets
+            const labels = Object.keys(groupedData);
+            const salesData = labels.map(label => groupedData[label].sales);
+            const purchaseData = labels.map(label => groupedData[label].purchases);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Sales',
+                            data: salesData,
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Purchases',
+                            data: purchaseData,
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderSalesChart(data) {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            const filteredData = data.filter(item => new Date(item.date) >= new Date(pastWeek));
+
+            const labels = filteredData.map(item => item.date);
+            const sales = filteredData.filter(item => item.type === 'sale').map(item => item.quantity);
+            const purchases = filteredData.filter(item => item.type === 'purchase').map(item => item.quantity);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Sales',
+                            data: sales,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Purchases',
+                            data: purchases,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fetch and display forecast data
+        $.getJSON('/forecast/forecast?days=7', function(data) {
+            $('#purchase-forecast').text(data.purchase_forecast.toFixed(2));
+            $('#sale-forecast').text(data.sale_forecast.toFixed(2));
+        });
+
+        // Fetch and display item forecasts
+        $.getJSON('/forecast/items', function(data) {
+            const ctx = document.getElementById('itemForecastChart').getContext('2d');
+            const sortedData = Object.entries(data)
+                .filter(([_, forecast]) => forecast.purchase_forecast > 0 || forecast.sale_forecast > 0)
+                .sort((a, b) => (b[1].purchase_forecast + b[1].sale_forecast) - (a[1].purchase_forecast + a[1].sale_forecast));
+            
+            const labels = sortedData.map(([item, _]) => item);
+            const purchaseData = sortedData.map(([_, forecast]) => forecast.purchase_forecast);
+            const saleData = sortedData.map(([_, forecast]) => forecast.sale_forecast);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Purchase Forecast',
+                            data: purchaseData,
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Sale Forecast',
+                            data: saleData,
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+        });
+
+        // Fetch and display item clusters
+        $.getJSON('/forecast/clusters', function(data) {
+            let clusterHtml = '<table class="table table-bordered"><thead><tr><th>Cluster</th><th>Items</th></tr></thead><tbody>';
+            data.clusters.forEach((cluster, index) => {
+                clusterHtml += `<tr><td>Cluster ${index + 1}</td><td>${cluster.join(', ')}</td></tr>`;
+            });
+            clusterHtml += '</tbody></table>';
+            $('#item-clusters').html(clusterHtml);
+        });
+    });
+    </script>
+</head>
+<body class="hold-transition sidebar-mini">
+
+<div class="wrapper">
+    {% include 'shared/navbar.html' %}
+    {% include 'shared/sidebar.html' %}
+
+    <div class="content-wrapper">
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="header-title">
+                    <i class="nav-icon fas fa-home icon-dashboardsptg"></i>
+                    <h1 class="m-0 text-dark">Dashboard SPTG</h1>
+                </div>
+                <div class="header-line"></div>
+            </div>
+        </div>
+
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="info-box bg-light">
+                            <span class="info-box-icon bg-warning"><i class="fas fa-box"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Data Barang</span>
+                                <span class="info-box-number" id="inventory-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box bg-light">
+                            <span class="info-box-icon bg-info"><i class="fas fa-download"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Barang Masuk</span>
+                                <span class="info-box-number" id="purchase-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box bg-light">
+                            <span class="info-box-icon bg-danger"><i class="fas fa-upload"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Barang Keluar</span>
+                                <span class="info-box-number" id="sale-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box bg-light">
+                            <span class="info-box-icon bg-success"><i class="fas fa-users"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Suppliers</span>
+                                <span class="info-box-number" id="supplier-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Inventory Transactions</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="inventoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Sales and Purchases Over Time</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-box bg-light">
+                            <span class="info-box-icon bg-primary"><i class="fas fa-chart-line"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Purchase Forecast (Next 7 Days)</span>
+                                <span class="info-box-number" id="purchase-forecast">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-box bg-light">
+                            <span class="info-box-icon bg-secondary"><i class="fas fa-chart-line"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Sales Forecast (Next 7 Days)</span>
+                                <span class="info-box-number" id="sale-forecast">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Item Forecasts</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="itemForecastChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Item Clusters</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="item-clusters"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+</body>
+</html>

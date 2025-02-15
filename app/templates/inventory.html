@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Page</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.11.5/api/fnReloadAjax.js"></script>
+</head>
+<body class="hold-transition sidebar-mini">
+
+<div class="wrapper">
+    <!-- Navbar -->
+    {% include 'shared/navbar.html' %}
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    {% include 'shared/sidebar.html' %}
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Content Header -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="header-title">
+                    <h1 class="m-0 text-dark">Inventory</h1>
+                </div>
+                <div class="header-line"></div>
+            </div>
+        </div>
+        <!-- /.content-header -->
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <button id="saveAll" class="btn btn-success mb-3">Save All</button>
+                <table id="inventoryTable" class="display">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>SKU</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Category ID</th>
+                            <th>Current Stock</th>
+                            <th>Reorder Level</th>
+                            <th>Unit Price</th>
+                            <th>Unit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <!-- Input fields for adding a new inventory item -->
+                <div class="mt-4">
+                    <h3>Add New Inventory Item</h3>
+                    <form id="addInventoryForm">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <input type="text" class="form-control" id="description">
+                        </div>
+                        <div class="form-group">
+                            <label for="category_id">Category ID</label>
+                            <input type="number" class="form-control" id="category_id">
+                        </div>
+                        <div class="form-group">
+                            <label for="current_stock">Current Stock</label>
+                            <input type="number" class="form-control" id="current_stock" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="reorder_level">Reorder Level</label>
+                            <input type="number" class="form-control" id="reorder_level">
+                        </div>
+                        <div class="form-group">
+                            <label for="unit_price">Unit Price</label>
+                            <input type="number" class="form-control" id="unit_price" step="1000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="unit">Unit</label>
+                            <input type="text" class="form-control" id="unit" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Item</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+</div>
+<!-- /.wrapper -->
+
+<script>
+$(document).ready(function() {
+    var table = $('#inventoryTable').DataTable({
+        "ajax": {
+            "url": "/inventory/all",
+            "dataSrc": ""
+        },
+        "columns": [
+                    { "data": "id" },
+                    { "data": "sku" },
+                    { "data": "name" },
+                    { "data": "description", "render": function(data, type, row) {
+                        return '<input type="text" class="form-control description" value="' + data + '" />';
+                    }},
+                    { "data": "category_id", "visible": false }, // Hide the category_id column
+                    { "data": "current_stock" },
+                    { "data": "reorder_level", "render": function(data, type, row) {
+                        return '<input type="number" class="form-control reorder_level" value="' + data + '" />';
+                    }},
+                    { "data": "unit_price", "render": function(data, type, row) {
+                        return '<input type="number" class="form-control unit_price" value="' + data + '" step="1000" />';
+                    }},
+                    { "data": "unit", "render": function(data, type, row) {
+                        return '<input type="text" class="form-control unit" value="' + data + '" />';
+                    }},
+                    { "data": null, "defaultContent": '<button class="btn btn-primary btn-sm save">Save</button>' }
+                ]
+
+    });
+
+    $('#inventoryTable tbody').on('click', 'button.save', function() {
+        var data = table.row($(this).parents('tr')).data();
+        var row = $(this).closest('tr');
+        var description = row.find('input.description').val();
+        var unit_price = row.find('input.unit_price').val();
+        var unit = row.find('input.unit').val();
+
+        $.ajax({
+            url: '/inventory/' + data.id,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                description: description,
+                unit_price: unit_price,
+                unit: unit
+            }),
+            success: function(result) {
+                table.ajax.reload(null, false); // Reload the table data without resetting the paging
+                
+                // Show success message
+                $('<div class="alert alert-success alert-dismissible fade show" role="alert">'
+                  + 'Update successful!'
+                  + '<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+                  + '<span aria-hidden="true">&times;</span>'
+                  + '</button></div>').prependTo('.content').delay(3000).fadeOut();
+            },
+            error: function(xhr) {
+                alert("Error updating the inventory item. Please try again.");
+            }
+        });
+    });
+
+    $('#saveAll').on('click', function() {
+        $('#inventoryTable tbody tr').each(function() {
+            var row = $(this);
+            var data = table.row(row).data();
+            var description = row.find('input.description').val();
+            var unit_price = row.find('input.unit_price').val();
+            var unit = row.find('input.unit').val();
+
+            $.ajax({
+                url: '/inventory/' + data.id,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    description: description,
+                    unit_price: unit_price,
+                    unit: unit
+                }),
+                success: function(result) {
+                    table.ajax.reload(null, false); // Reload the table data without resetting the paging
+                },
+                error: function(xhr) {
+                    alert("Error updating the inventory item. Please try again.");
+                }
+            });
+        });
+
+        // Show success message
+        $('<div class="alert alert-success alert-dismissible fade show" role="alert">'
+          + 'All updates successful!'
+          + '<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+          + '<span aria-hidden="true">&times;</span>'
+          + '</button></div>').prependTo('.content').delay(3000).fadeOut();
+    });
+
+    // Handle form submission for adding a new inventory item
+    $('#addInventoryForm').on('submit', function(event) {
+        event.preventDefault();
+        var formData = {
+            name: $('#name').val(),
+            description: $('#description').val(),
+            category_id: $('#category_id').val(),
+            current_stock: $('#current_stock').val(),
+            reorder_level: $('#reorder_level').val(),
+            unit_price: $('#unit_price').val(),
+            unit: $('#unit').val()
+        };
+
+        $.ajax({
+            url: '/inventory/add',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function(result) {
+                table.ajax.reload(null, false); // Reload the table data without resetting the paging
+                $('#addInventoryForm')[0].reset(); // Reset the form fields
+                
+                // Show success message
+                $('<div class="alert alert-success alert-dismissible fade show" role="alert">'
+                  + 'New inventory item added successfully!'
+                  + '<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+                  + '<span aria-hidden="true">&times;</span>'
+                  + '</button></div>').prependTo('.content').delay(3000).fadeOut();
+            },
+            error: function(xhr) {
+                alert("Error adding the inventory item. Please try again.");
+            }
+        });
+    });
+});
+</script>
+
+</body>
+</html>

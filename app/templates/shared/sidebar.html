@@ -1,0 +1,98 @@
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-light-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="#" class="brand-link">
+        <img src="{{ url_for('static', filename='media/img/logo_transparant.png') }}" alt="Logo Gemilang 888" class="brand-image">            <span class="brand-text font-weight-light"><b>SETG</b></span>
+    </a>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- User Panel -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div class="info">
+                <a href="#" id="username_sidebar" class="d-block">
+                    <span id="sidebar_username"></span><br>
+                    <small id="sidebar_userrole"></small>
+                </a>
+            </div>
+        </div>
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2" data-widget="treeview" role="menu" data-accordian="false">
+            <ul class="nav nav-pills nav-sidebar flex-column" role="menu">
+                <li class="nav-item">
+                    <a href="/main/dashboard" class="nav-link active">
+                        <i class="nav-icon fas fa-home"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-boxes"></i>
+                        <p>
+                            Stock Barang
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class ="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url_for('main.purchase_main') }}" class="nav-link">
+                                <i class = "fas fa-plus nav-icon"></i>
+                                <p>Input Stok</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url_for('main.stock_history') }}" class="nav-link">
+                                <i class = "fas fa-history nav-icon"></i>
+                                <p>History Transaksi</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url_for('inventory.index') }}" class="nav-link">
+                                <i class = "fas fa-warehouse nav-icon"></i>
+                                <p>Inventory</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('main.operational_main') }}" class="nav-link">
+                        <i class="nav-icon fas fa-cash-register"></i>
+                        <p>Operational</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('main.sale_report') }}" class="nav-link">
+                        <i class="nav-icon fas fa-chart-line"></i>
+                        <p>Laporan Penjualan</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('main.modul_panduan') }}" class="nav-link" target="_blank">
+                        <i class="nav-icon fas fa-book"></i>
+                        <p>Modul Panduan</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.admin_panel') }}" class="nav-link">
+                        <i class="nav-icon fas fa-cogs"></i>
+                        <p>Administration</p>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <!-- /.sidebar -->
+</aside>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('{{ url_for("auth.get_user_info") }}')
+            .then(response => response.json())
+            .then(data => {
+                if (!data.error) {
+                    document.getElementById('sidebar_username').textContent = data.username;
+                    document.getElementById('sidebar_userrole').textContent = data.role.name;
+                }
+            });
+    });
+</script>

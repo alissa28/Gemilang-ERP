@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Page</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+</head>
+<body class="hold-transition sidebar-mini">
+
+<div class="wrapper">
+    {% include 'shared/navbar.html' %}
+    {% include 'shared/sidebar.html' %}
+    <div class="content-wrapper">
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="header-title">
+                    <h1 class="m-0 text-dark">Purchases</h1>
+                </div>
+                <div class="header-line"></div>
+            </div>
+        </div>
+
+        <section class="content">
+            <div class="container-fluid">
+                <button class="btn btn-success mb-3" data-toggle="modal" data-target="#addPurchaseModal">Add Purchase</button>
+                <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#addSupplierModal">Add Supplier</button>
+                <table id="purchaseTable" class="display">
+                    <thead>
+                        <tr>
+                            <th>Purchase ID</th>
+                            <th>Date</th>
+                            <th>Supplier Name</th>
+                            <th>Item Name</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Add Purchase Modal -->
+<div class="modal fade" id="addPurchaseModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Purchase</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addPurchaseForm">
+                    <div class="form-group">
+                        <label for="supplierSelect">Supplier</label>
+                        <select class="form-control" id="supplierSelect" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchaseDate">Date</label>
+                        <input type="date" class="form-control" id="purchaseDate" required>
+                    </div>
+                    <h5>Items</h5>
+                    <table id="itemsTable" class="table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <button type="button" id="addItemRow" class="btn btn-info">Add Item</button>
+                    <button type="submit" class="btn btn-primary mt-3">Add Purchase</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Supplier Modal -->
+<div class="modal fade" id="addSupplierModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Supplier</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addSupplierForm">
+                    <div class="form-group">
+                        <label for="supplierName">Supplier Name</label>
+                        <input type="text" class="form-control" id="supplierName" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Supplier</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function () {
+    let table;
+
+    function parsePurchaseData(data) {
+        const tableData = [];
+    
+        data.forEach(purchase => {
+            purchase.details.forEach(detail => {
+                tableData.push({
+                    id: purchase.id,
+                    purchase_date: purchase.purchase_date,
+                    supplier_name: purchase.supplier.name, // Changed to supplier name
+                    item_name: detail.item.name, // Changed to item name
+                    quantity: detail.quantity,
+                    unit_price: detail.unit_price,
+                    total_amount: purchase.total_amount || "N/A"
+                });
+            });
+        });
+    
+        return tableData;
+    }
+
+    // Load supplier options and initialize the DataTable afterward
+    function initializePurchaseTable() {
+        fetch('/purchases/all') // Replace with your API endpoint
+            .then(response => response.json())
+            .then(data => {
+                const parsedData = parsePurchaseData(data);
+    
+                $('#purchaseTable').DataTable({
+                    data: parsedData,
+                    destroy: true, // Reinitialize DataTable when new data is loaded
+                    columns: [
+                        { data: "id", title: "Purchase ID" },
+                        { data: "purchase_date", title: "Date" },
+                        { data: "supplier_name", title: "Supplier Name" }, // Changed to supplier name
+                        { data: "item_name", title: "Item Name" }, // Changed to item name
+                        { data: "quantity", title: "Quantity" },
+                        { data: "unit_price", title: "Unit Price" },
+                        {
+                            data: "total_amount",
+                            title: "Total Amount",
+                            render: function (data) {
+                                return data !== "N/A" ? `$${parseFloat(data).toFixed(2)}` : "N/A";
+                            }
+                        }
+                    ]
+                });
+            })
+            .catch(error => console.error('Error fetching purchase data:', error));
+    }
+    
+    // Transform the raw JSON data into row-friendly format
+    function parsePurchaseData(data) {
+        const tableData = [];
+    
+        data.forEach(purchase => {
+            purchase.details.forEach(detail => {
+                tableData.push({
+                    id: purchase.id,
+                    purchase_date: purchase.purchase_date,
+                    supplier_name: purchase.supplier.name, // Changed to supplier name
+                    item_name: detail.item.name, // Changed to item name
+                    quantity: detail.quantity,
+                    unit_price: detail.unit_price,
+                    total_amount: purchase.total_amount || "N/A"
+                });
+            });
+        });
+    
+        return tableData;
+    }
+
+
+    // Load initial data and setup
+    function setupPage() {
+        loadSuppliers();
+        loadInventoryItems();
+        initializePurchaseTable();
+    }
+
+    setupPage();
+
+    // Load supplier options for dropdown
+    function loadSuppliers() {
+        $.get("/suppliers/all", function (data) {
+            $("#supplierSelect").empty();
+            data.forEach(supplier => {
+                $("#supplierSelect").append(`<option value="${supplier.id}">${supplier.name}</option>`);
+            });
+        });
+    }
+
+    // Load inventory items for dropdowns
+    function loadInventoryItems() {
+        $.get("/inventory/all", function (data) {
+            $('.item-id').each(function () {
+                const select = $(this);
+                select.empty();
+                select.append('<option value="" disabled selected>Select Item</option>');
+                data.forEach(item => {
+                    select.append(`<option value="${item.id}">${item.name}</option>`);
+                });
+            });
+        });
+    }
+
+    // Add purchase form submission
+    $('#addPurchaseForm').on('submit', function (event) {
+        event.preventDefault();
+        const items = [];
+        $('#itemsTable tbody tr').each(function () {
+            const row = $(this);
+            items.push({
+                item_id: row.find('.item-id').val(),
+                quantity: row.find('.item-quantity').val(),
+                unit_price: row.find('.item-price').val()
+            });
+        });
+
+        $.ajax({
+            url: '/purchases/add',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                supplier_id: $('#supplierSelect').val(),
+                date: $('#purchaseDate').val(),
+                items: items
+            }),
+            success: function () {
+                $('#addPurchaseModal').modal('hide');
+                table.ajax.reload();
+                alert("Purchase added successfully!");
+            },
+            error: function () {
+                alert("Error adding purchase");
+            }
+        });
+    });
+
+    // Add supplier form submission
+    $('#addSupplierForm').on('submit', function (event) {
+        event.preventDefault();
+        $.ajax({
+            url: '/suppliers/add',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ name: $('#supplierName').val() }),
+            success: function () {
+                $('#addSupplierModal').modal('hide');
+                loadSuppliers();
+                alert("Supplier added successfully!");
+            },
+            error: function () {
+                alert("Error adding supplier");
+            }
+        });
+    });
+
+    // Add item row
+    $('#addItemRow').click(function () {
+        $('#itemsTable tbody').append(`
+            <tr>
+                <td>
+                    <select class="form-control item-id" required></select>
+                </td>
+                <td><input type="number" class="form-control item-quantity" required></td>
+                <td><input type="number" class="form-control item-price" required></td>
+                <td><button type="button" class="btn btn-danger remove-row">Remove</button></td>
+            </tr>
+        `);
+        loadInventoryItems(); // Populate the dropdown for the new row
+    });
+
+    // Remove item row
+    $('#itemsTable').on('click', '.remove-row', function () {
+        $(this).closest('tr').remove();
+    });
+
+    // Load inventory items for existing rows on page load
+    loadInventoryItems();
+});
+</script>
+
+</body>
+</html>
