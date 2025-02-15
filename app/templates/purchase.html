@@ -15,6 +15,15 @@
     <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+    <style>
+        .modal-content{
+            width: fit-content;
+        }
+    </style>
 </head>
 <body class="hold-transition sidebar-mini">
 
@@ -212,19 +221,7 @@ $(document).ready(function () {
         });
     }
 
-    // Load inventory items for dropdowns
-    function loadInventoryItems() {
-        $.get("/inventory/all", function (data) {
-            $('.item-id').each(function () {
-                const select = $(this);
-                select.empty();
-                select.append('<option value="" disabled selected>Select Item</option>');
-                data.forEach(item => {
-                    select.append(`<option value="${item.id}">${item.name}</option>`);
-                });
-            });
-        });
-    }
+
 
     // Add purchase form submission
     $('#addPurchaseForm').on('submit', function (event) {
@@ -278,7 +275,44 @@ $(document).ready(function () {
         });
     });
 
-    // Add item row
+    function initializeDropdowns() {
+    $('#supplierSelect, .item-id').select2({
+        width: '100%', 
+        placeholder: 'Select an option',
+        allowClear: true,
+        dropdownParent: $('#addPurchaseModal') // Ensures dropdown stays inside modal
+    });
+}
+
+// Call the function after dynamically loading options
+function loadSuppliers() {
+    $.get("/suppliers/all", function (data) {
+        $("#supplierSelect").empty().append('<option value="" disabled selected>Select Supplier</option>');
+        data.forEach(supplier => {
+            $("#supplierSelect").append(`<option value="${supplier.id}">${supplier.name}</option>`);
+        });
+        initializeDropdowns(); // Reinitialize Select2
+    });
+}
+
+function loadInventoryItems() {
+    $.get("/inventory/all", function (data) {
+        $('.item-id').each(function () {
+            const select = $(this);
+            select.empty().append('<option value="" disabled selected>Select Item</option>');
+            data.forEach(item => {
+                select.append(`<option value="${item.id}">${item.name}</option>`);
+            });
+        });
+        initializeDropdowns(); // Reinitialize Select2
+    });
+}
+
+$(document).ready(function () {
+    initializeDropdowns();
+});
+
+    // Add item row with searchable dropdown
     $('#addItemRow').click(function () {
         $('#itemsTable tbody').append(`
             <tr>
@@ -286,11 +320,16 @@ $(document).ready(function () {
                     <select class="form-control item-id" required></select>
                 </td>
                 <td><input type="number" class="form-control item-quantity" required></td>
-                <td><input type="number" class="form-control item-price" required></td>
+                <td><input type="number" style="width: 120px;" class="form-control item-price" required></td>
                 <td><button type="button" class="btn btn-danger remove-row">Remove</button></td>
             </tr>
         `);
-        loadInventoryItems(); // Populate the dropdown for the new row
+        loadInventoryItems(); // Populate and apply Select2 to new row
+    });
+
+    // Initialize Select2 for supplier dropdown
+    $(document).ready(function () {
+        $('#supplierSelect').select2({ width: '100%' });
     });
 
     // Remove item row
