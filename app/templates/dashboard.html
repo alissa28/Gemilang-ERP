@@ -102,9 +102,26 @@
             const ctx = document.getElementById('salesChart').getContext('2d');
             const filteredData = data.filter(item => new Date(item.date) >= new Date(pastWeek));
 
-            const labels = filteredData.map(item => item.date);
-            const sales = filteredData.filter(item => item.type === 'sale').map(item => item.quantity);
-            const purchases = filteredData.filter(item => item.type === 'purchase').map(item => item.quantity);
+            // Group data by date
+            const dailyData = filteredData.reduce((acc, item) => {
+                const date = item.date;
+                if (!acc[date]) {
+                    acc[date] = { sales: 0, purchases: 0 };
+                }
+                if (item.type === 'sale') {
+                    acc[date].sales += item.quantity;
+                } else if (item.type === 'purchase') {
+                    acc[date].purchases += item.quantity;
+                }
+                return acc;
+            }, {});
+
+            const labels = Object.keys(dailyData);
+            const sales = labels.map(date => dailyData[date].sales);
+            const purchases = labels.map(date => dailyData[date].purchases);
+
+
+            
 
             new Chart(ctx, {
                 type: 'line',
